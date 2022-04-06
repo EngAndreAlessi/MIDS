@@ -8,6 +8,7 @@ int main()
 {
     Instance inst("MANN-a9.mtx");
     Solver solv(inst);
-    solv.greedy(1);
+    solv.greedy(0.95);
+    cout << solv.solution_len() << endl;
     return 0;
 }

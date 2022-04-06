@@ -34,6 +34,15 @@ void Solver::greedy(float alpha)
         std::cout << "**************************************" << std::endl;
         std::cout << "Max_degree: " << max << std::endl;
         int i,j;
+        // Remove zero degrees
+        for(i=0;i<this->n;i++)
+        {
+            if(degrees[i]==0)
+            {
+                solution[i] = 1;
+                degrees[i] = -1;
+            }
+        }
         std::vector<int> inodes;
         std::cout << "**************************************" << std::endl;
         std::cout << "******** Nodes inserted **************" << std::endl;
@@ -46,6 +55,7 @@ void Solver::greedy(float alpha)
                 inodes.push_back(i+1);
             }
         }
+        srand( (unsigned)time(NULL) );
         int random = rand() % inodes.size();
         int sel_elem = inodes[random];
         std::cout << "**************************************" << std::endl;
@@ -57,24 +67,26 @@ void Solver::greedy(float alpha)
         {
             if(adj[i][j] == 1)
             {
-                adj[i][j] = 0;
-                adj[j][i] = 0;
+                adj[i][j] = -1;
+                adj[j][i] = -1;
                 degrees[i]--;
                 degrees[j]--;
                 for(int k = 0; k < this->n; k++)
                 {
                     if(adj[j][k] == 1)
                     {
-                        adj[j][k] = 0;
-                        adj[k][j] = 0;
+                        adj[j][k] = -1;
+                        adj[k][j] = -1;
                         degrees[j]--;
                         degrees[k]--;
                     }
                     
                 }
+                degrees[j]--;
             }
             
         }
+        degrees[i]--;
         this->solution[i] = 1;
         print_solution();
     }
@@ -136,4 +148,22 @@ void Solver::print_solution()
     {
         std::cout << "Node " << i+1 << ": " << this->solution[i] << std::endl; 
     }
+}
+
+int Solver::solution_len()
+{
+    int sum=0;
+    for(int i=0; i<this->n; i++)
+    {
+        if(this->solution[i]==1)
+        {
+            sum++;
+        }
+    }
+    return sum;
+}
+
+void Solver::local_search(int rmv, int add)
+{
+    
 }

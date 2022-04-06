@@ -16,4 +16,6 @@ public:
     int max_degree(int *degrees);
     void print_solution();
     void print_degrees(int * degrees);
+    int solution_len();
+    void local_search(int rmv, int add);
 };
