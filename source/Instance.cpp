@@ -5,6 +5,8 @@
 
 Instance::Instance(std::string path): path(path)
 {
+	open();
+
     this->n = find_n();
     this->degrees = new int[n];
     this->adj = new int*[this->n];
@@ -21,9 +23,12 @@ Instance::Instance(std::string path): path(path)
         }
     }
     fill_adj_and_degrees();
-    //print_adj();
-    //print_degrees(); 
+    
+    log_function(print_adj);
+    log_function(print_degrees); 
     //std::cout << adj_order() << std::endl;
+    
+    close();
 }
 
 /*
@@ -39,72 +44,78 @@ Instance::~Instance()
 }
 */
 
-int Instance::find_n()
+void Instance::open()
 {
-    std::ifstream file;
-    file.open("bases/DIMACS/"+this->path);
-    if(file.is_open())
-    {
-        for(int i = 0; i < 5; i++)
-        {
-            std::string line;
-            file >> line;
-            //std::cout << line << std::endl;
-        }
-        int n;
-        file >> n;
-        //std::cout << n << std::endl;
-        return n;
-        
-    }
-    else 
+	this->file.open("bases/DIMACS/" + this->path);
+    if(!this->file.is_open())
     {
         std::cout << "File could not be open" << std::endl;
-        return 0;
+        exit(1);
     }
 }
 
-void Instance::fill_adj_and_degrees() 
-{ 
-    std::ifstream file;
-    file.open("bases/DIMACS/"+this->path);
-    if(file.is_open())
+void Instance::close()
+{
+	if(this->file.is_open())
+		this->file.close();
+}
+
+
+inline void Instance::try_open()
+{
+	if(!this->file.is_open())
+    	open();
+}
+
+inline void Instance::skip_lines(int qt)
+{
+    std::string line;
+    
+    while(qt-- > 0)
     {
-        for(int i = 0; i < 8; i++)
-        {
-            std::string line;
-            file >> line;
-            //std::cout << line << std::endl;
-        }
-        while(true)
-        {
-            if(file.eof()){
-                break;
-            }
-            int i,j;
-            file >> i;
-            file >> j;
-            //std::cout << i << " " << j << std::endl;
-            this->adj[i-1][j-1] = 1;
-            this->adj[j-1][i-1] = 1;
-            this->degrees[i-1]++;
-            this->degrees[j-1]++;
-            
-        }
+    	this->file >> line;
+	    log_message("Skipped line", line);
     }
-    else 
+}
+
+int Instance::find_n()
+{
+    try_open();
+    skip_lines(5);
+    
+    int n;
+    this->file >> n;
+    log_message("N", n);
+    
+    return n;
+}
+
+void Instance::fill_adj_and_degrees() 
+{
+    try_open();
+    skip_lines(8);
+    
+    int i,j;
+	
+    while(!this->file.eof())
     {
-        std::cout << "File could not be open" << std::endl;
+        this->file >> i >> j;
+        i--;
+        j--;
+	    log_message("N", n);
+        //std::cout << i << " " << j << std::endl;
+        this->adj[i][j] = 1;
+        this->adj[j][i] = 1;
+        this->degrees[i]++;
+        this->degrees[j]++;
+        
     }
 }
 
 void Instance::print_degrees()
 {
-    int i;
-    for(i=1;i<=this->n;i++)
-    {
-        std::cout << "Node " << i << ": " << this->degrees[i-1] << std::endl;
-    }
+    for(int i=0; i < this->n; i++)
+        std::cout << "Node " << (i+1) << ": " << this->degrees[i] << std::endl;
 }
 
 void Instance::print_adj()
@@ -112,9 +123,8 @@ void Instance::print_adj()
     for(int i = 0; i < this->n; i++)
     {
         for(int j = 0; j < this->n; j++)
-        {
             std::cout << this->adj[i][j] << " ";
-        }
+        
         std::cout << std::endl;
     }
 }

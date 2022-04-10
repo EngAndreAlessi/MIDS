@@ -4,12 +4,12 @@
 class Solver
 {
 private:
-    Instance instance;
+    Instance *instance;
     int n;
     int *solution;
 
 public:
-    Solver(Instance instance);
+    Solver(Instance *instance);
     //~Solver();
     void greedy(float alpha);
     int adj_order(int **adj);

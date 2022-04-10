@@ -2,9 +2,9 @@
 #include <iostream>
 #include <vector>
 
-Solver::Solver(Instance instance): instance(instance)
+Solver::Solver(Instance *inst): instance(inst)
 {
-    this->n = instance.get_n();
+    this->n = instance->get_n();
     //std::cout << this->n << std::endl;
     this->solution = new int[this->n];
     for(int i=0; i < this->n; i++)
@@ -23,16 +23,19 @@ Solver::~Solver()
 
 void Solver::greedy(float alpha)
 {  
-    int *degrees = this->instance.get_degrees();
-    int **adj = this->instance.get_adj(); 
+    int *degrees = this->instance->get_degrees();
+    int **adj = this->instance->get_adj();
+    
     while(adj_order(adj) != 0)
     {    
         print_degrees(degrees);
         float max = 1.0*max_degree(degrees);
+        
         std::cout << "**************************************" << std::endl;
         std::cout << "******** Max degree ******************" << std::endl;
         std::cout << "**************************************" << std::endl;
         std::cout << "Max_degree: " << max << std::endl;
+        
         int i,j;
         // Remove zero degrees
         for(i=0;i<this->n;i++)
@@ -43,10 +46,12 @@ void Solver::greedy(float alpha)
                 degrees[i] = -1;
             }
         }
+        
         std::vector<int> inodes;
         std::cout << "**************************************" << std::endl;
         std::cout << "******** Nodes inserted **************" << std::endl;
         std::cout << "**************************************" << std::endl;
+        
         for(i=0;i<this->n;i++)
         {
             bool geq_alpha_max = (float) degrees[i] >= (alpha * max);
@@ -58,10 +63,12 @@ void Solver::greedy(float alpha)
         srand( (unsigned)time(NULL) );
         int random = rand() % inodes.size();
         int sel_elem = inodes[random];
+        
         std::cout << "**************************************" << std::endl;
         std::cout << "******** Selected element ***********" << std::endl;
         std::cout << "**************************************" << std::endl;
         std::cout << "Selected element: " << sel_elem << std::endl;
+        
         i = sel_elem - 1;
         for(j=0;j<this->n;j++)
         {
