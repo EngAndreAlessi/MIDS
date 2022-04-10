@@ -22,7 +22,7 @@ private:
     
 public:
     Instance(std::string path);
-    //~Instance();
+    ~Instance();
     
     // manipulação de dados
     void remove_node(int node);

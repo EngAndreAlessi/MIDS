@@ -10,7 +10,7 @@ private:
 
 public:
     Solver(Instance *instance);
-    //~Solver();
+    ~Solver();
     void greedy(float alpha);
     int adj_order(int **adj);
     int max_degree(int *degrees);

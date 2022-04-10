@@ -13,13 +13,11 @@ Solver::Solver(Instance *inst): instance(inst)
     }
 }
 
-/*
+
 Solver::~Solver()
 {
-    delete this->solution;
-    this->solution = NULL;
+    delete[] this->solution;
 }
-*/
 
 void Solver::greedy(float alpha)
 {  

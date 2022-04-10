@@ -9,6 +9,7 @@ Instance::Instance(std::string path): path(path)
 
     this->n = find_n();
     this->degrees = new int[n];
+	    
     this->adj = new int*[this->n];
     for(int i = 0; i < this->n; i++)
     {
@@ -31,18 +32,19 @@ Instance::Instance(std::string path): path(path)
     close();
 }
 
-/*
+
 Instance::~Instance()
 {
-    delete this->degrees;
-    this->degrees = NULL;
-    delete this->adj;
-    for(int i=0;i<this->n;i++)
+    delete[] this->degrees;
+    
+    for(int i=0; i < this->n; i++)
     {
-        this->adj[i] = NULL;
+        delete[] this->adj[i];
     }
+    
+    delete[] this->adj;
 }
-*/
+
 
 void Instance::open()
 {
@@ -69,6 +71,7 @@ inline void Instance::try_open()
 
 inline void Instance::skip_lines(int qt)
 {
+    try_open();
     std::string line;
     
     while(qt-- > 0)

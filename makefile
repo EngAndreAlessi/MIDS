@@ -12,7 +12,7 @@ RLSCFLAGS = -c -Wall
 all: clean release
 
 clean:
-	rm -rf ${DBGFOLDER}/*.o ${BINFOLDER}/*~ ${BINFOLDER}/mids
+	rm -rf ${DBGFOLDER}/*.o ${RLSFOLDER}/*.o ${BINFOLDER}/*~ ${BINFOLDER}/mids
 
 
 
