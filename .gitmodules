@@ -1,0 +1,3 @@
+[submodule "source/CppLib"]
+	path = source/CppLib
+	url = https://github.com/lcaldeira/CppLib.git
