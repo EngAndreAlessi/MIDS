@@ -1,7 +1,8 @@
-//		clear && g++ _teste_.cpp -o teste && ./teste && rm teste
-//		clear && g++ _teste_.cpp -o teste && valgrind ./teste && rm teste
+//		clear && g++ _teste_.cpp -o teste Model.cpp && ./teste && rm teste
+//		clear && g++ _teste_.cpp -o teste Model.cpp && valgrind ./teste && rm teste
 
 #include "Model.hpp"
+using namespace DataStructures;
 
 void testSets();
 void testGraphs();

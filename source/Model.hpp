@@ -1,20 +1,17 @@
 #pragma once
-#include <CppLib/DataStructures/Vector.h>
-#include <CppLib/DataStructures/Set.h>
-#include <CppLib/DataStructures/SimpleGraph.h>
+#define CPPLIB_ABS_INC_PATH_F
+#include "CppLib/DataStructures/header/Vector.h"
+#include "CppLib/DataStructures/header/Set.h"
+#include "CppLib/DataStructures/header/SimpleGraph.h"
 
-using namespace DataStructures;
+typedef DataStructures::Set<int, DataStructures::Vector> NodeSet;
 
-typedef Set<int, Vector> NodeSet;
-//typedef SimpleGraph<int> Graph;
-
-class Graph : public SimpleGraph<int>
+class Graph : public DataStructures::SimpleGraph<int>
 {
 private:
-	using SimpleGraph<int>::neighborsOf;
+	using DataStructures::SimpleGraph<int>::neighborsOf;
 public:
-	Graph() : SimpleGraph<int>(8) {}
-	Graph(size_t cap) : SimpleGraph<int>(cap) {}
-	
-	inline NodeSet neighborsOf(int v){ return NodeSet(SimpleGraph<int>::neighborsOf(v)); }
+	Graph();
+	Graph(size_t cap);
+	NodeSet neighborsOf(int v);
 };
