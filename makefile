@@ -18,8 +18,8 @@ clean:
 
 
 
-debug: ${DBGFOLDER}/main.o ${DBGFOLDER}/Solver.o ${DBGFOLDER}/Instance.o
-	g++ -o ${BINFOLDER}/mids ${DBGFOLDER}/main.o ${DBGFOLDER}/Solver.o ${DBGFOLDER}/Instance.o
+debug: ${DBGFOLDER}/main.o ${DBGFOLDER}/Solver.o ${DBGFOLDER}/Instance.o ${DBGFOLDER}/Model.o
+	g++ -o ${BINFOLDER}/mids ${DBGFOLDER}/main.o ${DBGFOLDER}/Solver.o ${DBGFOLDER}/Instance.o ${DBGFOLDER}/Model.o
 
 ${DBGFOLDER}/Model.o: ${SRCFOLDER}/Model.cpp ${SRCFOLDER}/Model.hpp ${LIB1}/Vector.h ${LIB1}/Set.h ${LIB1}/SimpleGraph.h
 	g++ -o ${DBGFOLDER}/Model.o ${SRCFOLDER}/Model.cpp ${DBGCFLAGS}
@@ -35,8 +35,8 @@ ${DBGFOLDER}/main.o: ${SRCFOLDER}/main.cpp ${SRCFOLDER}/Solver.hpp ${SRCFOLDER}/
 
 
 
-release: ${RLSFOLDER}/main.o ${RLSFOLDER}/Solver.o ${RLSFOLDER}/Instance.o
-	g++ -o ${BINFOLDER}/mids ${RLSFOLDER}/main.o ${RLSFOLDER}/Solver.o ${RLSFOLDER}/Instance.o
+release: ${RLSFOLDER}/main.o ${RLSFOLDER}/Solver.o ${RLSFOLDER}/Instance.o ${RLSFOLDER}/Model.o
+	g++ -o ${BINFOLDER}/mids ${RLSFOLDER}/main.o ${RLSFOLDER}/Solver.o ${RLSFOLDER}/Instance.o ${RLSFOLDER}/Model.o 
 
 ${RLSFOLDER}/Model.o: ${SRCFOLDER}/Model.cpp ${SRCFOLDER}/Model.hpp ${LIB1}/Vector.h ${LIB1}/Set.h ${LIB1}/SimpleGraph.h
 	g++ -o ${RLSFOLDER}/Model.o ${SRCFOLDER}/Model.cpp ${RLSCFLAGS}

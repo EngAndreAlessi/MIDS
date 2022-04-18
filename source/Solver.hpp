@@ -1,12 +1,13 @@
 #pragma once
 #include "Instance.hpp"
+#include "Solution.hpp"
 
 class Solver
 {
-private:
+protected:
     Instance *instance;
     int n;
-    int *solution;
+    Solution solution;
 
 public:
     Solver(Instance *instance);
@@ -18,4 +19,5 @@ public:
     void print_degrees(int * degrees);
     int solution_len();
     void local_search(int rmv, int add);
+    virtual void solve() = 0;
 };
