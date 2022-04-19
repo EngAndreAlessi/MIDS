@@ -78,9 +78,11 @@ void testGraphs()
 	g1.print();
 	
 	std::cout << "\nremoção do vértice (4)\n";
+	std::cout << " * G1 contains '4'? " << g1.contains(4) << std::endl << std::endl;
 	//remove o vértice (4)
 	g1.removeVertex(g1.getVertex(2));
 	g1.print();
+	std::cout << " * G1 contains '4'? " << g1.contains(4) << std::endl;
 	
 	//remove a aresta (8, 0)
 	std::cout << "\nremoção da aresta (8,0)\n";
