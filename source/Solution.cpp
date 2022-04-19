@@ -4,10 +4,18 @@ Solution::Solution(std::string path)
 {
     this->inst = Instance(path);
     this->n = inst.get_n();
+    this->sol = new bool[this->n];
     for(int i = 0; i < this->n; i++)
     {
-        this->solution[i] = false;
+        this->sol[i] = false;
     }
+}
+
+Solution::Solution() {}
+
+Solution::~Solution()
+{
+    delete this->sol;
 }
 
 bool Solution::is_valid()
@@ -16,12 +24,12 @@ bool Solution::is_valid()
     int i,j;
     for(i = 0; i < this->n; i++)
     {
-        if(solution[i])
+        if(sol[i])
         {
             NodeSet neigh = aux.neighborsOf(i+1);
             for(j = 0; j < neigh.getSize(); j++)
             {
-                if(this->solution[neigh.get(j)])
+                if(this->sol[neigh.get(j)])
                 {
                     return false;
                 }
@@ -32,7 +40,7 @@ bool Solution::is_valid()
 
     for(i = 0; i < this->n; i++)
     {
-        if(solution[i])
+        if(sol[i])
         {
             aux.removeVertex(i+1);
         }
@@ -43,6 +51,36 @@ bool Solution::is_valid()
         return true;
     }
     return false;
+}
 
+void Solution::print_solution() const
+{
+    for(int i = 0; i < this->n; i++)
+    {
+        if(this->sol[i])
+        {
+            std::cout << i + 1 << " ";
+        }
+    }
+    std::cout << std::endl;
+}
 
+int Solution::get_n() const
+{
+    return this->n;
+}
+
+bool *Solution::get_solution() const
+{
+    return this->sol;
+}
+
+Graph Solution::get_model() const
+{
+    return this->inst.get_model();
+}
+
+void Solution::set_solution(bool *sol)
+{
+    this->sol = sol;
 }

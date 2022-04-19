@@ -6,7 +6,7 @@
 
 class Instance
 {
-private:
+protected:
     int n;
     Graph model;
     std::string path;

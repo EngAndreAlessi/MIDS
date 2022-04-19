@@ -1,23 +1,22 @@
 #pragma once
-#include "Instance.hpp"
 #include "Solution.hpp"
+#include <string>
 
 class Solver
 {
 protected:
-    Instance *instance;
     int n;
-    Solution solution;
+    Solution *solution;
 
 public:
-    Solver(Instance *instance);
+    Solver(std::string path);
+    Solver();
     ~Solver();
-    void greedy(float alpha);
-    int adj_order(int **adj);
+    bool *greedy_construction(float alpha);
+    bool *local_search(bool *sol);
+    int *find_degrees(Graph model);
     int max_degree(int *degrees);
-    void print_solution();
-    void print_degrees(int * degrees);
-    int solution_len();
-    void local_search(int rmv, int add);
-    virtual void solve() = 0;
+    int sol_length(bool *sol);
+    void print_solution() const;
+    virtual void solve(float alpha, int n_iter) = 0;
 };

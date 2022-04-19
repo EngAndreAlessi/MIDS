@@ -21,6 +21,7 @@ Instance::Instance(std::string path): path(path)
     close();
 }
 
+Instance::Instance() {}
 
 void Instance::open()
 {
@@ -99,3 +100,4 @@ void Instance::print_degrees() const
         std::cout << "Degree of " << i << " = " << this->model.degreeOf(i) << std::endl;
     }
 }
+
