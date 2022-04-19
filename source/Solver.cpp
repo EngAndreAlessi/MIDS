@@ -32,6 +32,10 @@ bool *Solver::greedy_construction(float alpha)
     {
         // Get the degrees
         degrees = find_degrees(model);
+        std::cout << "Model:" << std::endl;
+        model.print();
+        std::cout << std::endl;
+        print_degrees(degrees);
 
         // Remove zero degrees
         for(i = 0; i < this->n; i++)
@@ -39,6 +43,7 @@ bool *Solver::greedy_construction(float alpha)
             if(degrees[i] == 0)
             {
                 model.removeVertex(i+1);
+                std::cout << "Zero degree removed: " << i+1 << std::endl;
                 sol[i] = true;
             }
         }
@@ -57,11 +62,13 @@ bool *Solver::greedy_construction(float alpha)
         int random = rand() % inodes.size();
         int sel_elem = inodes[random];
         i = sel_elem - 1;
+        std::cout << "Selected node: " << i+1 << std::endl;
         // Remove neighbors of i
-        NodeSet neigh = model.neighborsOf(i);
+        NodeSet neigh = model.neighborsOf(i+1);
         for(j = 0; j < neigh.getSize(); j++)
         {
             model.removeVertex(neigh.get(j));
+            std::cout << "Node removed: " << neigh.get(j) << std::endl;
         }
         // Remove i from model and insert it into solution
         model.removeVertex(i+1);
@@ -137,4 +144,17 @@ int Solver::sol_length(bool *sol)
         }
     }
     return sum;
+}
+
+int Solver::get_n() const
+{
+    return this->n;
+}
+
+void Solver::print_degrees(int *degrees) const
+{
+    for(int i = 0; i < this->n; i++)
+    {
+        std::cout << i+1 << ": " << degrees[i] << std::endl;
+    }
 }

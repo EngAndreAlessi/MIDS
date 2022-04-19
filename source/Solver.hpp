@@ -18,5 +18,7 @@ public:
     int max_degree(int *degrees);
     int sol_length(bool *sol);
     void print_solution() const;
+    void print_degrees(int *degrees) const;
+    int get_n() const;
     virtual void solve(float alpha, int n_iter) = 0;
 };

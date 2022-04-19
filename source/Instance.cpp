@@ -64,6 +64,7 @@ int Instance::find_n()
     int n;
     this->file >> n;
     log_message("N", n);
+    close();
     
     return n;
 }
@@ -81,6 +82,7 @@ void Instance::fill_adj()
         this->model.addEdge(i,j);
         
     }
+    close();
 }
 
 int Instance::get_n() const
