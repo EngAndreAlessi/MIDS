@@ -1,122 +1,91 @@
-/*
 #include "Solver.hpp"
 #include <iostream>
 #include <vector>
 
-Solver::Solver(Instance *inst): instance(inst)
+Solver::Solver(std::string path)
 {
-    this->n = instance->get_n();
-    //std::cout << this->n << std::endl;
-    this->solution = new int[this->n];
-    for(int i=0; i < this->n; i++)
-    {
-        solution[i] = 0;
-    }
+    this->solution =  new Solution(path);
+    this->n = this->solution[0].get_n();
 }
 
+Solver::Solver(){}
 
 Solver::~Solver()
 {
-    delete[] this->solution;
+    delete this->solution;
 }
 
-void Solver::greedy(float alpha)
-{  
-    int *degrees = this->instance->get_degrees();
-    int **adj = this->instance->get_adj();
-    
-    while(adj_order(adj) != 0)
-    {    
-        print_degrees(degrees);
-        float max = 1.0*max_degree(degrees);
-        
-        std::cout << "**************************************" << std::endl;
-        std::cout << "******** Max degree ******************" << std::endl;
-        std::cout << "**************************************" << std::endl;
-        std::cout << "Max_degree: " << max << std::endl;
-        
-        int i,j;
+bool *Solver::greedy_construction(float alpha)
+{
+    int i, j;
+    int *degrees;
+    srand( (unsigned)time(NULL) );
+    // Get the graph and the solution
+    Graph model = this->solution[0].get_model();
+    bool *sol = new bool[this->n];
+    for(i = 0; i < this->n; i++)
+    {
+        sol[i] = false;
+    }
+    // While there are vertices in the graph
+    while(model.countVertices() != 0)
+    {
+        // Get the degrees
+        degrees = find_degrees(model);
+
         // Remove zero degrees
-        for(i=0;i<this->n;i++)
+        for(i = 0; i < this->n; i++)
         {
-            if(degrees[i]==0)
+            if(degrees[i] == 0)
             {
-                solution[i] = 1;
-                degrees[i] = -1;
+                model.removeVertex(i+1);
+                sol[i] = true;
             }
         }
-        
+        // Insert nodes with degree >= max * alpha into inodes
+        float max = 1.0 * max_degree(degrees);
         std::vector<int> inodes;
-        std::cout << "**************************************" << std::endl;
-        std::cout << "******** Nodes inserted **************" << std::endl;
-        std::cout << "**************************************" << std::endl;
-        
-        for(i=0;i<this->n;i++)
+        for(i = 0; i < this->n; i++)
         {
-            bool geq_alpha_max = (float) degrees[i] >= (alpha * max);
-            std::cout << i << ": " << degrees[i] << ">=" << alpha*max << " = " << geq_alpha_max << std::endl;
-            if(geq_alpha_max){
+            bool geq_alpha_max = ((float) degrees[i]) >= (alpha * max);
+            if(geq_alpha_max)
+            {
                 inodes.push_back(i+1);
             }
         }
-        srand( (unsigned)time(NULL) );
+        // Select random node i from inodes
         int random = rand() % inodes.size();
         int sel_elem = inodes[random];
-        
-        std::cout << "**************************************" << std::endl;
-        std::cout << "******** Selected element ***********" << std::endl;
-        std::cout << "**************************************" << std::endl;
-        std::cout << "Selected element: " << sel_elem << std::endl;
-        
         i = sel_elem - 1;
-        for(j=0;j<this->n;j++)
+        // Remove neighbors of i
+        NodeSet neigh = model.neighborsOf(i);
+        for(j = 0; j < neigh.getSize(); j++)
         {
-            if(adj[i][j] == 1)
-            {
-                adj[i][j] = -1;
-                adj[j][i] = -1;
-                degrees[i]--;
-                degrees[j]--;
-                for(int k = 0; k < this->n; k++)
-                {
-                    if(adj[j][k] == 1)
-                    {
-                        adj[j][k] = -1;
-                        adj[k][j] = -1;
-                        degrees[j]--;
-                        degrees[k]--;
-                    }
-                    
-                }
-                degrees[j]--;
-            }
-            
+            model.removeVertex(neigh.get(j));
         }
-        degrees[i]--;
-        this->solution[i] = 1;
-        print_solution();
+        // Remove i from model and insert it into solution
+        model.removeVertex(i+1);
+        sol[i] = true;
     }
+    delete degrees;
+    return sol;
 }
 
-int Solver::adj_order(int **adj)
+int *Solver::find_degrees(Graph model)
 {
-    int i,j;
-    int order = 0;
-    for(i=0;i<this->n;i++)
+    int *degrees = new int[this->n];
+    for(int i = 0; i < this->n; i++)
     {
-        bool is_empty = true;
-        for(j=0;j<this->n;j++)
+        if(model.contains(i+1))
         {
-            if(adj[i][j] == 1){
-                is_empty = false;
-                break;
-            }
+            degrees[i] = model.degreeOf(i+1);
         }
-        if(is_empty == false){
-            order++;
+        else
+        {
+            degrees[i] = -1;
         }
     }
-    return order;
+    return degrees;
 }
 
 int Solver::max_degree(int *degrees)
@@ -131,46 +100,41 @@ int Solver::max_degree(int *degrees)
     return max;
 }
 
-void Solver::print_degrees(int * degrees)
+bool *Solver::local_search(bool *sol)
 {
-    std::cout << "**************************************" << std::endl;
-    std::cout << "******** Print Degrees ***************" << std::endl;
-    std::cout << "**************************************" << std::endl;
-    int i;
-    for(i=0;i<this->n;i++)
+    std::vector<int> inodes;
+    for(int i = 0; i < this->n; i++)
     {
-        std::cout << i+1 << ": " << degrees[i] << "   ";
+        if(sol[i])
+        {
+            inodes.push_back(i);
+        }
     }
-    std::cout << std::endl;
+    int rand1 = rand() % inodes.size();
+    int rand2 = rand() % inodes.size();
+    while(rand2 == rand1)
+    {
+        rand2 = rand() % inodes.size();
+    }
+    rand1 = rand() % this->n;
+    sol[rand1] = true;
+    return sol;
 }
 
-void Solver::print_solution()
+void Solver::print_solution() const
 {
-    std::cout << "**************************************" << std::endl;
-    std::cout << "******** Print Solution **************" << std::endl;
-    std::cout << "**************************************" << std::endl;
-    int i;
-    for(i=0;i<this->n;i++)
-    {
-        std::cout << "Node " << i+1 << ": " << this->solution[i] << std::endl; 
-    }
+    this->solution->print_solution();
 }
 
-int Solver::solution_len()
+int Solver::sol_length(bool *sol)
 {
-    int sum=0;
-    for(int i=0; i<this->n; i++)
+    int sum = 0;
+    for(int i = 0; i < this->n; i++)
     {
-        if(this->solution[i]==1)
+        if(sol[i])
         {
             sum++;
         }
     }
     return sum;
 }
-
-void Solver::local_search(int rmv, int add)
-{
-    
-}
-*/
