@@ -1,28 +1,38 @@
 #include <iostream>
 #include <cstdlib>
 #include "Solver_GRASP.hpp"
-
-using namespace std;
+#include <filesystem>
+#include <cstddef>
 
 int main()
 {
-    /*
-    Solver_GRASP solver("teste.mtx");
-    //solver.solve(0.8, 10);
-    //solver.print_solution();
-    bool * sol = solver.greedy_construction(0.8);
-    for(int i = 0; i < solver.get_n(); i++)
+    std::string path = "bases/DIMACS/";
+    for(const auto & entry : std::filesystem::directory_iterator(path))
     {
-        if(sol[i])
-        {
-            cout << i << " ";
-        }
+        std::string name = entry.path().string();
+        std::string aux = name.substr(name.find_last_of("/")+1);
+        std::string log_name = "logs/" + aux.substr(0, aux.find(".")) + ".txt";
+        std::cout << name << std::endl;
+        std::cout << log_name << std::endl;
+        Solver_GRASP solver(name, log_name);
+        solver.write_log(10);
     }
-    cout << endl;
-    */
-    Instance inst("teste.mtx");
-    Graph model = inst.get_model();
-    model.removeVertex(1);
-    cout << model.contains(1) << endl;
+
+    path = "bases/BHOSLIB/";
+    for(const auto & entry : std::filesystem::directory_iterator(path))
+    {
+        std::string name = entry.path().string();
+        std::string aux = name.substr(name.find_last_of("/")+1);
+        std::string log_name = "logs/" + aux.substr(0, aux.find(".")) + ".txt";
+        std::cout << name << std::endl;
+        std::cout << log_name << std::endl;
+        Solver_GRASP solver(name, log_name);
+        solver.write_log(10);
+    }
+    
+    
+    //Solver_GRASP solver("bases/DIMACS/brock200-2.mtx", "logs/brock200-2.txt");
+    //solver.write_log(10);
+    
     return 0;
 }

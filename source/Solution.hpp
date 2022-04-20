@@ -19,5 +19,6 @@ public:
     int get_n() const;
     bool *get_solution() const;
     Graph get_model() const;
+    std::string get_path() const;
     void set_solution(bool *sol);
 };

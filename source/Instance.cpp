@@ -25,7 +25,8 @@ Instance::Instance() {}
 
 void Instance::open()
 {
-	this->file.open("bases/DIMACS/" + this->path);
+    this->file.open(this->path);
+    //std::cout << this->path << std::endl;
     if(!this->file.is_open())
     {
         std::cout << "File could not be open" << std::endl;
@@ -93,6 +94,11 @@ int Instance::get_n() const
 Graph Instance::get_model() const
 {
     return this->model;
+}
+
+std::string Instance::get_path() const
+{
+    return this->path;
 }
 
 void Instance::print_degrees() const
