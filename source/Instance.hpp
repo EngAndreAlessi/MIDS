@@ -24,5 +24,6 @@ public:
     Instance();
     int get_n() const;
     Graph get_model() const;
+    std::string get_path() const;
     void print_degrees() const;
 }; 

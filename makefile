@@ -6,8 +6,8 @@ BINFOLDER = .
 # caminhos das bibliotecas
 LIB1 = source/CppLib/DataStructures/header
 # flags de compilação
-DBGCFLAGS = -c -g -DDEBUG_MODE
-RLSCFLAGS = -c #-Wall
+DBGCFLAGS = -c -g -DDEBUG_MODE -std=c++17
+RLSCFLAGS = -c -std=c++17 #-Wall
 
 
 

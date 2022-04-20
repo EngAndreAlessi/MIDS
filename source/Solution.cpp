@@ -29,7 +29,7 @@ bool Solution::is_valid()
             NodeSet neigh = aux.neighborsOf(i+1);
             for(j = 0; j < neigh.getSize(); j++)
             {
-                if(this->sol[neigh.get(j)])
+                if(this->sol[neigh.get(j)-1])
                 {
                     return false;
                 }
@@ -78,6 +78,11 @@ bool *Solution::get_solution() const
 Graph Solution::get_model() const
 {
     return this->inst.get_model();
+}
+
+std::string Solution::get_path() const
+{
+    return this->inst.get_path();
 }
 
 void Solution::set_solution(bool *sol)

@@ -1,11 +1,14 @@
 #include "Solver.hpp"
 #include <iostream>
 #include <vector>
+#include <chrono>
 
-Solver::Solver(std::string path)
+Solver::Solver(std::string path, std::string log_path)
 {
+    this->log_path = log_path;
     this->solution =  new Solution(path);
     this->n = this->solution[0].get_n();
+    this->path = this->solution[0].get_path();
 }
 
 Solver::Solver(){}
@@ -32,10 +35,10 @@ bool *Solver::greedy_construction(float alpha)
     {
         // Get the degrees
         degrees = find_degrees(model);
-        std::cout << "Model:" << std::endl;
-        model.print();
-        std::cout << std::endl;
-        print_degrees(degrees);
+        //std::cout << "Model:" << std::endl;
+        //model.print();
+        //std::cout << std::endl;
+        //print_degrees(degrees);
 
         // Remove zero degrees
         for(i = 0; i < this->n; i++)
@@ -43,7 +46,7 @@ bool *Solver::greedy_construction(float alpha)
             if(degrees[i] == 0)
             {
                 model.removeVertex(i+1);
-                std::cout << "Zero degree removed: " << i+1 << std::endl;
+                //std::cout << "Zero degree removed: " << i+1 << std::endl;
                 sol[i] = true;
             }
         }
@@ -62,13 +65,13 @@ bool *Solver::greedy_construction(float alpha)
         int random = rand() % inodes.size();
         int sel_elem = inodes[random];
         i = sel_elem - 1;
-        std::cout << "Selected node: " << i+1 << std::endl;
+        //std::cout << "Selected node: " << i+1 << std::endl;
         // Remove neighbors of i
         NodeSet neigh = model.neighborsOf(i+1);
         for(j = 0; j < neigh.getSize(); j++)
         {
             model.removeVertex(neigh.get(j));
-            std::cout << "Node removed: " << neigh.get(j) << std::endl;
+            //std::cout << "Node removed: " << neigh.get(j) << std::endl;
         }
         // Remove i from model and insert it into solution
         model.removeVertex(i+1);
@@ -107,8 +110,10 @@ int Solver::max_degree(int *degrees)
     return max;
 }
 
-bool *Solver::local_search(bool *sol)
+bool *Solver::local_search(Solution *solution)
 {
+    bool *sol = solution[0].get_solution();
+    bool *original = sol;
     std::vector<int> inodes;
     for(int i = 0; i < this->n; i++)
     {
@@ -125,7 +130,15 @@ bool *Solver::local_search(bool *sol)
     }
     rand1 = rand() % this->n;
     sol[rand1] = true;
-    return sol;
+    solution[0].set_solution(sol);
+    if(solution[0].is_valid())
+    {
+        return sol;
+    }
+    else
+    {
+        return original;
+    }
 }
 
 void Solver::print_solution() const
@@ -149,6 +162,60 @@ int Solver::sol_length(bool *sol)
 int Solver::get_n() const
 {
     return this->n;
+}
+
+bool Solver::is_solution_valid()
+{
+    return this->solution[0].is_valid();
+}
+
+void Solver::open()
+{
+	this->file.open(this->log_path);
+    if(!this->file.is_open())
+    {
+        std::cout << "File could not be open" << std::endl;
+        exit(1);
+    }
+}
+
+void Solver::close() 
+{
+	if(this->file.is_open())
+		this->file.close();
+}
+
+
+inline void Solver::try_open() 
+{
+	if(!this->file.is_open())
+    	open();
+}
+
+void Solver::write_log(int n_iter)
+{
+    try_open();
+    for(int j = 0; j < n_iter; j++)
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+        solve(0.8, 20);
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+        bool *sol = this->solution[0].get_solution();
+        for(int i = 0; i < this->n; i++)
+        {
+            if(sol[i])
+            {
+                file << i + 1 << " ";
+            }
+        }
+        file << ";";
+        file << sol_length(sol);
+        file << ";";
+        file << duration.count();
+        file << std::endl;
+    }
+    close();
 }
 
 void Solver::print_degrees(int *degrees) const
