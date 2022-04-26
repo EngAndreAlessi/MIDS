@@ -1,24 +1,31 @@
 #pragma once
-#include "Instance.hpp"
+#define CPPLIB_ABS_INC_PATH_F
 #include <string>
+#include "Instance.hpp"
+#include "CppLib/DataStructures/header/Vector.h"
 
-class Solution
+class Solution : protected DataStructures::Vector<bool>
 {
 protected:
-    int n;
-    bool *sol;
-    Instance inst;
-
-    bool is_in(int vertex);
+    Instance *inst;
+    DataStructures::Vector<int> deg;
+    size_t n;
 public:
-    Solution(std::string path);
     Solution();
-    ~Solution();
-    bool is_valid();
-    void print_solution() const;
+    Solution(Instance* inst_ptr);
+	Solution& operator=(const Solution& sol);
+    
     int get_n() const;
-    bool *get_solution() const;
-    Graph get_model() const;
+    int degree_of(int vtx) const;
+    bool is_member(int vtx) const;
+    NodeSet get_members() const;
+    Graph* get_model() const;
     std::string get_path() const;
-    void set_solution(bool *sol);
+    
+    void set_full();
+    void set_empty();
+    void add_vertex(int vtx);
+    void rmv_vertex(int vtx);
+    bool is_valid() const;
+    void print() const;
 };

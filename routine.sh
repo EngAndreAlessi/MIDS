@@ -15,4 +15,5 @@ mkdir -p objects/release
 # se $1 não for informado, define o valor padrão como "all"
 make ${1:-all}
 # executa o programa
+echo
 ./mids
