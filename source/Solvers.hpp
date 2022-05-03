@@ -27,7 +27,7 @@ public:
     void log_batch(int n_iter, std::string base_folder=".");
     long get_batch_duration() const;
     Solution get_best_solution() const;
-    bool update_best_solution(const Solution &sol);
+    bool update_best_solution(Solution &sol);
     virtual Solution solve() = 0;
 };
 

@@ -18,12 +18,14 @@ Instance::Instance(std::string path): FileHandler(path)
     this->model = new Graph(this->n);
     
 	for(int i = 1; i<= this->n; i++)
+	{
         this->model->addVertex(i);
+    }
     
     fill_adj();
     
     //log_function(print_adj);
-    log_function(print_degrees); 
+    //log_function(print_degrees); 
     //std::cout << adj_order() << std::endl;
     
     close();
@@ -53,12 +55,12 @@ void Instance::fill_adj()
     try_open();
     skip_lines(8);
     
-    int i,j;
+    int vi, vj;
 	
     while(!this->file.eof())
     {
-        this->file >> i >> j;
-        this->model->addEdge(i,j);
+        this->file >> vi >> vj;
+        this->model->addEdge_(vi-1, vj-1);
     }
     close();
 }
@@ -85,9 +87,11 @@ Graph* Instance::get_model() const
 
 void Instance::print_degrees() const
 {
-    for(int i = 1; i <= this->n; i++)
+	int v;
+    for(size_t i = 0; i < this->n; i++)
     {
-        std::cout << "Degree of (" << i << ") = " << this->model->degreeOf(i) << std::endl;
+    	v = i+1;
+        std::cout << "Degree of (" << v << ") = " << this->model->degreeOf_(i) << std::endl;
     }
 }
 

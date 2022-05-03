@@ -1,6 +1,11 @@
 #include "Solution.hpp"
 
-Solution::Solution() : DataStructures::Vector<bool>(0), n(0), inst(nullptr) {}
+Solution::Solution() : DataStructures::Vector<bool>(0), n(0), inst(nullptr)
+{
+	this->deg_updated = false;
+	this->validated = false;
+	this->status = false;
+}
 
 Solution::Solution(Instance* inst_ptr) : DataStructures::Vector<bool>(1)
 {
@@ -15,22 +20,46 @@ Solution& Solution::operator=(const Solution& sol)
 	this->n = sol.n;
 	this->deg = sol.deg;
 	this->inst = sol.inst;
+	this->deg_updated = sol.deg_updated;
+	this->validated = sol.validated;
+	this->status = sol.status;
 	Vector<bool>::operator=( (Vector<bool>) sol);
 	return *this;
 }
 
 int Solution::get_n() const
 {
-	/*int qt = 0;
-	for(size_t i=0; i < this->getSize(); i++)
-		qt += this->get(i);
-    return qt;
-    */
     return n;
 }
 
-int Solution::degree_of(int vtx) const
+int Solution::degree_of(int vtx)
 {
+	if(!this->deg_updated)
+	{
+		int vi,vj;
+		size_t i,j,k;
+		
+		for(i=0; i< this->n; i++)
+		{
+			this->deg[i] = 0;
+			
+			if(!this->get(i))
+				continue;
+			
+			vi = i+1;
+			NodeSet neigh = this->inst->neighbors_of(vi);
+			
+			for(j=0; j < neigh.getSize(); j++)
+			{
+				vj = neigh.get(j);
+				k = vj-1;
+				
+				if(this->get(k))
+					this->deg[k]++;
+			}
+		}
+		this->deg_updated = true;
+	}
     return this->deg[vtx-1];
 }
 
@@ -70,6 +99,10 @@ void Solution::set_full()
 	
     for(size_t i = 0; i < model->countVertices(); i++)
     	this->deg[i] = model->degreeOf(i+1);
+    
+	this->deg_updated = true;
+	this->validated = true;
+	this->status = true;
 }
 void Solution::set_empty()
 {
@@ -77,7 +110,11 @@ void Solution::set_empty()
 	this->clear();
 	this->fill(false);
 	this->deg.clear();
-	this->deg.fill(-1);
+	this->deg.fill(0);
+	
+	this->deg_updated = true;
+	this->validated = true;
+	this->status = false;
 }
 
 void Solution::add_vertex(int vtx)
@@ -88,11 +125,12 @@ void Solution::add_vertex(int vtx)
 	{
 		this->n++;
 		this->set(true, idx);
+		this->deg_updated = false;
 		
-		NodeSet neigh = this->inst->neighbors_of(vtx);
-		NodeSet members = this->get_members();
-		this->deg[idx] = (neigh ^ members).getSize(); // intersection
-		// recalcular o grau dos que se ligam a ele
+		// insertion on an invalid solution can turn it into valid
+		if(this->validated && !this->status)
+			this->validated = false;
+		// if the solution is validated and valid, don't need to revalidate
 	}
 }
 
@@ -104,46 +142,60 @@ void Solution::rmv_vertex(int vtx)
 	{
 		this->n--;
 		this->set(false, idx);
-		this->deg[idx] = -1;
-		// recalcular o grau dos q se ligam a eles
+		this->deg_updated = false;
+		
+		// removal on a valid solution can turn it into invalid
+		if(this->validated && this->status)
+			this->validated = false;
+		// if the solution is validated and invalid, don't need to revalidate
 	}
 }
 
 // TENTAR OTIMIZAR
-bool Solution::is_valid() const
+bool Solution::is_valid()
 {
 	if(this->inst == nullptr)
-		return false;
+	{
+		this->validated = true;
+		this->status = false;
+	}
 	
-    size_t i,j;
-    size_t sz = this->getSize();
-    Graph g = *inst->get_model();
-    
-    for(i = 0; i < sz; i++)
-    {
-        if((*this)[i])
-        {
-            NodeSet neigh = g.neighborsOf(i+1);
-            for(j = 0; j < neigh.getSize(); j++)
-            {
-                if((*this)[neigh.get(j)-1])
-                {
-                    return false;
-                }
-                g.removeVertex(neigh.get(j));
-            }
-        }
-    }
+	if(!this->validated)
+	{
+		size_t i,j;
+		size_t sz = this->getSize();
+		Graph g = *inst->get_model();
+		
+		for(i = 0; i < sz; i++)
+		{
+		    if((*this)[i])
+		    {
+		        NodeSet neigh = g.neighborsOf(i+1);
+		        for(j = 0; j < neigh.getSize(); j++)
+		        {
+		            if((*this)[neigh.get(j)-1])
+		            {
+						this->status = false;
+						this->validated = true;
+		                return this->status;
+		            }
+		            g.removeVertex(neigh.get(j));
+		        }
+		    }
+		}
 
-    for(i = 0; i < sz; i++)
-    {
-        if((*this)[i])
-        {
-            g.removeVertex(i+1);
-        }
-    }
+		for(i = 0; i < sz; i++)
+		{
+		    if((*this)[i])
+		    {
+		        g.removeVertex(i+1);
+		    }
+		}
 
-    return (g.countVertices() == 0);
+		this->status = (g.countVertices() == 0);
+		this->validated = true;
+	}
+	return this->status;
 }
 
 void Solution::print() const
@@ -155,3 +207,13 @@ void Solution::print() const
 	}
 	std::cout << std::endl;
 }
+
+/*void Solution::print_status(bool keep_inline) const
+{
+    printf(" %i|%i|%i %s", 
+    	deg_updated, 
+    	validated, 
+    	status,
+    	(keep_inline ? " " : "\n")
+    );
+}*/

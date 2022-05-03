@@ -48,7 +48,14 @@ void Solver::log_batch(int n_iter, std::string base_folder)
         this->milis += duration.count();
         
         if(!sol.is_valid())
+        {
+	        log_message("Solution rejected", "");
+        	log_function(sol.print);
         	continue;
+        }
+        
+        log_message("Solution accepted", "");
+        log_function(sol.print);
         
         this->file << sol.get_n() << "; ";
         this->file << sol.get_members().strFormat(' ') << "; ";
@@ -68,7 +75,7 @@ Solution Solver::get_best_solution() const
 	return this->best;
 }
 
-bool Solver::update_best_solution(const Solution &sol)
+bool Solver::update_best_solution(Solution &sol)
 {
 	if(sol.is_valid() && (sol.get_n() < this->best.get_n() || !this->best.is_valid()))
 	{
@@ -92,6 +99,8 @@ GreedyMethod::GreedyMethod(Instance *inst, float alpha) : Solver(inst, "greedy-"
 }
 Solution GreedyMethod::solve()
 {
+	log_message("\n>>> Begin of greedy solver...", "");
+	
 	int v;
     size_t i, j;
     
@@ -102,32 +111,36 @@ Solution GreedyMethod::solve()
     // inserts zero degree nodes
     for(i = 0; i < g.countVertices(); i++)
     {
-    	v = i+1;
-        if(g.degreeOf(v) == 0)
+        if(g.degreeOf_(i) == 0)
         {
+        	v = i+1;
         	sol.add_vertex(v);
         	log_message("Zero degree node added to greedy solution", v);
         }
     }
+	log_message("\nNew solution", "");
     
     // remove from graph the added nodes
     NodeSet n = sol.get_members();
     for(i=0; i < n.getSize(); i++)
     {
-    	g.removeVertex(n.get(i));
+    	j = g.indexOf(n.get(i));
+    	g.removeVertex_(j);
     }
     
+	log_message("Starting loop for remaninig nodes (qt)", g.countVertices());
+    
     // Preallocated array of vertices
-    NodeArray candidates = NodeArray(g.getSize());
+    NodeArray candidates = NodeArray(g.countVertices());
     
     // While there are vertices in the graph
     while(g.countVertices() > 0)
     {
     	// Get max degree
-    	int max_deg = g.degreeOf(g.getVertex(0));
+    	int max_deg = g.degreeOf_(0);
 	    for(i = 1; i < g.countVertices(); i++)
 	    {
-	    	int aux = g.degreeOf(g.getVertex(i)); 
+	    	int aux = g.degreeOf_(i); 
 	    	if(aux > max_deg)
 	    	{
 	    		max_deg = aux;
@@ -138,9 +151,9 @@ Solution GreedyMethod::solve()
         candidates.clear();
 	    for(i = 0; i < g.countVertices(); i++)
 	    {
-	    	v = g.getVertex(i);
-	    	if((float) g.degreeOf(v) >= max_deg * this->alpha)
+	    	if((float) g.degreeOf_(i) >= max_deg * this->alpha)
 	    	{
+		    	v = g.getVertex(i);
 	    		candidates.pushBack(v);
 	    	}
 	    }
@@ -149,18 +162,21 @@ Solution GreedyMethod::solve()
         v = candidates[random_idx];
         sol.add_vertex(v);
     	log_message("Random selected node added to greedy solution", v);
+    	if(v == 0)
+    		exit(1);
         
         // Remove it and its neighbors from copied graph
-        NodeSet neigh = g.neighborsOf(v);
-        g.removeVertex(v);
+        i = g.indexOf(v);
+        NodeSet neigh = g.neighborsOf_(i);
+        g.removeVertex_(i);
     	log_message(" -> Neighbors removed", (std::string) neigh);
         
         for(i = 0; i < neigh.getSize(); i++)
         {
-            g.removeVertex(neigh.get(i));
+			j = g.indexOf(neigh.get(i));
+			g.removeVertex_(j);
         }
     }
-    
     update_best_solution(sol);
     return sol;
 }
