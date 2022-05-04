@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <iostream>
+#include "CppLib/Utilities/header/Macros.h"
 
 /*
 	adicione "#define DEBUG_MODE" no código ou 

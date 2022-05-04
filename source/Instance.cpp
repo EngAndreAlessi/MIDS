@@ -1,72 +1,52 @@
 #include "Instance.hpp"
-#include <string>
-#include <iostream>
-#include <fstream>
 
-Instance::Instance(std::string path): path(path)
+Instance::Instance(): FileHandler(), model(nullptr) {}
+
+Instance::Instance(std::string path): FileHandler(path)
 {
-	open();
+	try_open();
+	
+	size_t idx0 = path.find_last_of("/");
+	size_t idx1 = path.find_last_of(".");
+	this->name = path.substr(idx0+1, idx1-idx0-1);
+	
+	idx1 = idx0;
+	idx0 = path.substr(0, idx0).find_last_of("/");
+	this->family = path.substr(idx0+1, idx1-idx0-1);
+	
     this->n = find_n();
+    this->model = new Graph(this->n);
+    
 	for(int i = 1; i<= this->n; i++)
-    {
-        this->model.addVertex(i);
-    } 
+	{
+        this->model->addVertex(i);
+    }
     
     fill_adj();
     
     //log_function(print_adj);
-    log_function(print_degrees); 
+    //log_function(print_degrees); 
     //std::cout << adj_order() << std::endl;
     
     close();
 }
 
-Instance::Instance() {}
-
-void Instance::open()
+Instance::~Instance()
 {
-    this->file.open(this->path);
-    //std::cout << this->path << std::endl;
-    if(!this->file.is_open())
-    {
-        std::cout << "File could not be open" << std::endl;
-        exit(1);
-    }
-}
-
-void Instance::close() 
-{
-	if(this->file.is_open())
-		this->file.close();
-}
-
-
-inline void Instance::try_open() 
-{
-	if(!this->file.is_open())
-    	open();
-}
-
-inline void Instance::skip_lines(int qt) 
-{
-    try_open();
-    std::string line;
-    while(qt-- > 0)
-    {
-    	this->file >> line;
-	    log_message("Skipped line", line);
-    }
+	if(this->model != nullptr)
+		delete this->model;
 }
 
 int Instance::find_n()
 {
     try_open();
     skip_lines(5);
+    
     int n;
     this->file >> n;
     log_message("N", n);
-    close();
     
+    close();
     return n;
 }
 
@@ -75,15 +55,24 @@ void Instance::fill_adj()
     try_open();
     skip_lines(8);
     
-    int i,j;
+    int vi, vj;
 	
     while(!this->file.eof())
     {
-        this->file >> i >> j;
-        this->model.addEdge(i,j);
-        
+        this->file >> vi >> vj;
+        this->model->addEdge_(vi-1, vj-1);
     }
     close();
+}
+
+std::string Instance::get_name() const
+{
+    return this->name;
+}
+
+std::string Instance::get_family() const
+{
+    return this->family;
 }
 
 int Instance::get_n() const
@@ -91,21 +80,23 @@ int Instance::get_n() const
     return this->n;
 }
 
-Graph Instance::get_model() const
+Graph* Instance::get_model() const
 {
     return this->model;
 }
 
-std::string Instance::get_path() const
-{
-    return this->path;
-}
-
 void Instance::print_degrees() const
 {
-    for(int i = 1; i <= this->n; i++)
+	int v;
+    for(size_t i = 0; i < this->n; i++)
     {
-        std::cout << "Degree of " << i << " = " << this->model.degreeOf(i) << std::endl;
+    	v = i+1;
+        std::cout << "Degree of (" << v << ") = " << this->model->degreeOf_(i) << std::endl;
     }
 }
 
+
+NodeSet Instance::neighbors_of(int v) const
+{
+	return NodeSet(this->model->neighborsOf(v));
+}

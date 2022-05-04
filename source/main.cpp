@@ -1,38 +1,40 @@
 #include <iostream>
 #include <cstdlib>
-#include "Solver_GRASP.hpp"
-#include <filesystem>
 #include <cstddef>
+//#include "Solver_GRASP.hpp"
+#include "Solvers.hpp"
 
-int main()
+using namespace std;
+
+int main(int argc, char** argv)
 {
-    std::string path = "bases/DIMACS/";
-    for(const auto & entry : std::filesystem::directory_iterator(path))
-    {
-        std::string name = entry.path().string();
-        std::string aux = name.substr(name.find_last_of("/")+1);
-        std::string log_name = "logs/" + aux.substr(0, aux.find(".")) + ".txt";
-        std::cout << name << std::endl;
-        std::cout << log_name << std::endl;
-        Solver_GRASP solver(name, log_name);
-        solver.write_log(10);
-    }
-
-    path = "bases/BHOSLIB/";
-    for(const auto & entry : std::filesystem::directory_iterator(path))
-    {
-        std::string name = entry.path().string();
-        std::string aux = name.substr(name.find_last_of("/")+1);
-        std::string log_name = "logs/" + aux.substr(0, aux.find(".")) + ".txt";
-        std::cout << name << std::endl;
-        std::cout << log_name << std::endl;
-        Solver_GRASP solver(name, log_name);
-        solver.write_log(10);
-    }
+    string bases[] = {
+    	"bases/DIMACS/",
+    	"bases/BHOSLIB/"
+    };
     
-    
-    //Solver_GRASP solver("bases/DIMACS/brock200-2.mtx", "logs/brock200-2.txt");
-    //solver.write_log(10);
+    for(string folder : bases)
+    {
+		for(const auto& entry : FileHandler::scan_dir(folder))
+		{
+		    string path = entry.path().string();
+		    if(argc == 2 && path != argv[1])
+				continue;
+		    	
+		    Instance inst = Instance(path);
+		    std::cout << inst.get_family() << "/" << inst.get_name() << std::endl;
+		    
+		    GreedyMethod s0 = GreedyMethod(&inst, 0.8);
+		    s0.log_batch(10, "logs");
+		    
+		    /*LocalSearch s1 = LocalSearch(&inst);
+		    s1.update_best_solution(s0.get_best_solution());
+		    s1.log_batch(10, "logs");
+		    
+		    Grasp s2 = Grasp(&inst, &s0, &s1, 10);
+		    s2.log_batch(10, "logs");*/
+		}
+	}
     
     return 0;
 }
